@@ -40,7 +40,7 @@ function App() {
             <SearchBar />
           </div>
           
-          {loading && <div className="loader">Loading...</div>}
+          {loading && <div className="loader">Cargando...</div>}
           {error && <div className="error">{error}</div>}
           
           {!loading && !error && (

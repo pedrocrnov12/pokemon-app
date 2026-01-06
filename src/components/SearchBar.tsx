@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../store/store';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '../store/store';
 import { searchPokemon, setSearchTerm, clearSearch, fetchPokemons } from '../store/pokemonSlice';
 
 export const SearchBar = () => {
   const [input, setInput] = useState('');
   const dispatch = useDispatch<AppDispatch>();
+  const { itemsPerPage, loading } = useSelector((state: RootState) => state.pokemon);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,8 +19,7 @@ export const SearchBar = () => {
   const handleClear = () => {
     setInput('');
     dispatch(clearSearch());
-    //reload the first page of the full list
-    dispatch(fetchPokemons({ page: 1, limit: 6 }));
+    dispatch(fetchPokemons({ page: 1, limit: itemsPerPage }));
   };
 
   return (
@@ -30,9 +30,10 @@ export const SearchBar = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Buscar Pokémon..."
+          aria-label="Buscar Pokémon"
           className="search-input"
         />
-        <button type="submit" className="search-btn">Buscar</button>
+        <button type="submit" className="search-btn" disabled={loading || !input.trim()}>Buscar</button>
       </form>
       {input && (
         <button onClick={handleClear} className="clear-btn">

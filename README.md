@@ -1,4 +1,5 @@
 # Pokemon Codex
+# creado por Pedro Cruz novelo como prueba tecnica para la empresa Blue Axe
 
 Una aplicación web construida con React, TypeScript y Redux.
 
@@ -45,6 +46,8 @@ src/
 │   ├── Pagination.tsx
 │   ├── PokemonCard.tsx
 │   └── SearchBar.tsx
+├── services/       # Cliente HTTP (Axios) y manejo de errores
+│   └── pokeApi.ts
 ├── store/          # Configuración de Redux
 │   ├── pokemonSlice.ts  # Lógica de estado (reducers, thunks)
 │   └── store.ts         # Configuración del store global
@@ -63,11 +66,31 @@ La aplicación utiliza un slice principal `pokemonSlice` que maneja:
 - `currentPage`: Control de la paginación actual.
 - `totalCount`: Total de Pokémon disponibles (para calcular páginas).
 
+### Mejoras Implementadas
+
+- Configuración por entorno: uso de `VITE_API_BASE_URL` y `VITE_API_TIMEOUT` con fallbacks seguros.
+- Unificación del cliente HTTP: todas las peticiones con `pokeApi` + interceptores y mensajes de error consistentes.
+- UX y accesibilidad: `aria-label` en búsqueda, botón deshabilitado durante carga o sin texto, textos del UI en español.
+- Rendimiento: imágenes con `loading="lazy"` en las tarjetas.
+- Consistencia: botón "Ver Todos" usa `itemsPerPage` del store.
+- Manejo de errores: mensajes diferenciados por timeout/red/404 desde el interceptor.
+
 ### Instalación y Ejecución Local
 
 Para instrucciones detalladas, ver el archivo `INSTRUCCIONES_LOCAL.txt`.
 
 1.  Clonar el repositorio.
 2.  Instalar dependencias: `npm install`
-3.  Correr el servidor de desarrollo: `npm run dev`
+3.  Crear archivo `.env` en la raíz con variables de entorno:
+```
+VITE_API_BASE_URL=https://pokeapi.co/api/v2
+VITE_API_TIMEOUT=8000
+```
+
+4.  Correr el servidor de desarrollo: `npm run dev`
+
+
+Notas:
+- Las variables con prefijo VITE_ se exponen al cliente.
+- Reinicia el servidor si modificas `.env`.
 

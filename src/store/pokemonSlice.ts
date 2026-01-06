@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import pokeApi from '../services/pokeApi.ts';
 
 export interface Pokemon {
   id: number;
@@ -7,6 +7,18 @@ export interface Pokemon {
   image: string;
   types: string[];
 }
+
+type PokemonTypeSlot = { type: { name: string } };
+
+type PokemonDetail = {
+  id: number;
+  name: string;
+  sprites: {
+    front_default: string | null;
+    other?: { ['official-artwork']?: { front_default: string | null } };
+  };
+  types: PokemonTypeSlot[];
+};
 
 interface PokemonState {
   list: Pokemon[];
@@ -33,19 +45,20 @@ export const fetchPokemons = createAsyncThunk(
   'pokemon/fetchPokemons',
   async ({ page, limit }: { page: number; limit: number }) => {
     const offset = (page - 1) * limit;
-    const response = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`);
+    const response = await pokeApi.get(`/pokemon?limit=${limit}&offset=${offset}`);
     const results = response.data.results;
     const total = response.data.count;
 
     // We obtain the details of each Pokémon to have its image and types 
     const detailedPokemons = await Promise.all(
       results.map(async (pokemon: { url: string }) => {
-        const detailResponse = await axios.get(pokemon.url);
+        const detailResponse = await pokeApi.get(pokemon.url);
+        const detailData: PokemonDetail = detailResponse.data;
         return {
-          id: detailResponse.data.id,
-          name: detailResponse.data.name,
-          image: detailResponse.data.sprites.front_default || detailResponse.data.sprites.other['official-artwork'].front_default,
-          types: detailResponse.data.types.map((t: any) => t.type.name),
+          id: detailData.id,
+          name: detailData.name,
+          image: detailData.sprites.front_default ?? detailData.sprites.other?.['official-artwork']?.front_default ?? '',
+          types: detailData.types.map((t) => t.type.name),
         };
       })
     );
@@ -58,13 +71,13 @@ export const fetchPokemons = createAsyncThunk(
 export const searchPokemon = createAsyncThunk(
   'pokemon/searchPokemon',
   async (name: string) => {
-    const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`);
-    const data = response.data;
+    const response = await pokeApi.get(`/pokemon/${name.toLowerCase()}`);
+    const data: PokemonDetail = response.data;
     return {
       id: data.id,
       name: data.name,
-      image: data.sprites.front_default || data.sprites.other['official-artwork'].front_default,
-      types: data.types.map((t: any) => t.type.name),
+      image: data.sprites.front_default ?? data.sprites.other?.['official-artwork']?.front_default ?? '',
+      types: data.types.map((t) => t.type.name),
     };
   }
 );
@@ -110,9 +123,9 @@ const pokemonSlice = createSlice({
         state.list = [action.payload];
         state.totalCount = 1;
       })
-      .addCase(searchPokemon.rejected, (state) => {
+      .addCase(searchPokemon.rejected, (state, action) => {
         state.loading = false;
-        state.error = 'Pokémon no encontrado';
+        state.error = action.error.message || 'Pokémon no encontrado';
         state.list = [];
       });
   },

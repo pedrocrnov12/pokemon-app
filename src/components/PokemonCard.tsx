@@ -8,7 +8,7 @@ export const PokemonCard = ({ pokemon }: Props) => {
   return (
     <div className="pokemon-card">
       <div className="card-image-container">
-        <img src={pokemon.image} alt={pokemon.name} />
+        <img src={pokemon.image} alt={`Imagen de ${pokemon.name}`} loading="lazy" />
       </div>
       <div className="card-content">
         <h3>{pokemon.name}</h3>
