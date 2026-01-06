@@ -29,7 +29,7 @@ function App() {
     <div className="app-container">
       <header className="app-header">
         <div className="title-container">
-          <h1>Pokémon Codex</h1>
+          <h1>Pokédex</h1>
           <p className="author-name">Pedro Antonio Cruz Novelo</p>
         </div>
       </header>
